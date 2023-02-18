@@ -1,0 +1,9 @@
+.movement-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+
+  .plot-container {
+    flex: 1 1 auto;
+  }
+}
