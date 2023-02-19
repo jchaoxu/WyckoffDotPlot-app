@@ -127,17 +127,6 @@ def is_inverted_trend(prev: float, curr: float, trend: Trend) -> bool:
     return False
 
 
-def compress_single(movements: list[Movement]):
-    result: list[Movement] = []
-    for i in range(len(movements)):
-        if movements[i].get_length() == 1:
-            if i < len(movements) - 1:
-                movements[i + 1].compress(movements[i].get_moves())
-        else:
-            result.append(movements[i])
-    return result
-
-
 def get_result(movements: list[Movement]):
     result: list = []
     for i in range(len(movements)):
@@ -175,18 +164,18 @@ class Drawer:
         # Separate data by trend (increasing / decreasing)
         trend_separated_movement = separate_trend(concat_movement)
 
-        # Compress single dot movements
-        single_compressed_movement = compress_single(trend_separated_movement)
-
         # Compress
-        compressed_moment = self._compress(single_compressed_movement)
+        compressed_moment = self._compress(trend_separated_movement)
 
         return get_result(compressed_moment)
         # return compressed_moment
 
     def _compress(self, movements: list[Movement]):
+        threshold = self._compression_threshold;
+
+        # Avoid single dot condition
         if self._compression_threshold == 1:
-            return movements
+            threshold = 2
 
         result: list[Movement] = []
 
@@ -195,7 +184,7 @@ class Drawer:
             if i == 0:
                 result.append(movements[i])
                 i = i + 1
-            elif movements[i].get_length() >= self._compression_threshold:
+            elif movements[i].get_length() >= threshold:
                 result.append(movements[i])
                 i = i + 1
             else:

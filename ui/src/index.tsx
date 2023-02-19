@@ -3,13 +3,22 @@ import ReactDOM from "react-dom/client";
 import "./index.scss";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import "react-datepicker/dist/react-datepicker.css";
+import { CreateServices } from "./services";
+import { ServiceContext } from "./context/services.context";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
+
+const services = CreateServices();
+
 root.render(
   <React.StrictMode>
-    <App />
+    <ServiceContext.Provider value={services}>
+      <App />
+    </ServiceContext.Provider>
   </React.StrictMode>
 );
 

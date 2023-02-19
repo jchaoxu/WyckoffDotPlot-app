@@ -14,8 +14,8 @@ export interface SearchMovementResponse {
 }
 
 export interface SearchMovementRequest {
-  startDate: Date;
-  endDate: Date;
+  startDate: string;
+  endDate: string;
   stockCode: string;
   frequency: string;
   decimalPlaces: number;

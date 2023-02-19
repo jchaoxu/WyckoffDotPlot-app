@@ -21,23 +21,55 @@ const getSeriesColor = (trend: Trend) => {
 
 export interface DotPlotProps {
   data: Movement[];
+  isLoading: boolean;
 }
 
-export const DotPlot: React.FC<DotPlotProps> = ({ data }) => {
+export const DotPlot: React.FC<DotPlotProps> = ({ data, isLoading }) => {
   const chart = useRef(null);
   const size = useComponentSize(chart);
   const [chartInstance, setChartInstance] = useState<any>();
 
-  const options: any = useMemo(() => {
-    const series = data.flatMap((v, i) => ({
-      name: getSeriesName(v.trend),
-      type: "scatter",
+  const dataSeries = useMemo(() => {
+    const dataSet = data.flatMap((v, i) => ({
+      trend: v.trend,
       data: v.moves.map((m) => [i, m]),
-      itemStyle: {
-        color: getSeriesColor(v.trend),
-      },
-      coordinateSystem: "cartesian2d",
     }));
+    const increasingDataset = dataSet.filter(x => x.trend === Trend.Increasing).flatMap(x => x.data);
+    const decreasingDataset = dataSet.filter(x => x.trend === Trend.Decreasing).flatMap(x => x.data);
+
+    const concatSeries = [
+      {
+        name: getSeriesName(Trend.Increasing),
+        type: "scatter",
+        data: increasingDataset,
+        itemStyle: {
+          color: getSeriesColor(Trend.Increasing),
+        },
+        coordinateSystem: "cartesian2d",
+      },
+      {
+        name: getSeriesName(Trend.Decreasing),
+        type: "scatter",
+        data: decreasingDataset,
+        itemStyle: {
+          color: getSeriesColor(Trend.Decreasing),
+        },
+        coordinateSystem: "cartesian2d",
+      }
+    ];
+    return concatSeries;
+  }, [data]);
+
+  const options: any = useMemo(() => {
+    // const series = data.flatMap((v, i) => ({
+    //   name: getSeriesName(v.trend),
+    //   type: "scatter",
+    //   data: v.moves.map((m) => [i, m]),
+    //   itemStyle: {
+    //     color: getSeriesColor(v.trend),
+    //   },
+    //   coordinateSystem: "cartesian2d",
+    // }));
 
     return {
       xAxis: {},
@@ -49,13 +81,45 @@ export const DotPlot: React.FC<DotPlotProps> = ({ data }) => {
         minInterval: 0.01,
         splitNumber: 10,
       },
-      series: series,
+      series: dataSeries,
+      dataZoom: [
+        {
+          type: "inside",
+        },
+        {
+          type: "slider",
+        },
+      ],
+      toolbox: {
+        show: true,
+        feature: {
+          dataZoom: {
+            yAxisIndex: 'none'
+          },
+          brush: {
+            type: ["rect", "clear"],
+          },
+          restore: {},
+          saveAsImage: {}
+        },
+        left: "middle",
+      },
+      brush: {
+        toolBox: ["rect"],
+        brushType: "rect",
+      },
+      graphic: {
+        elements: [
+          {
+            type: "line",
+          },
+        ],
+      },
+      tooltip: {
+        show: true,
+      },
     };
-  }, [data]);
-
-  useEffect(() => {
-    console.log(options);
-  }, [options]);
+  }, [dataSeries]);
 
   const renderChart = useCallback(() => {
     const renderInstance = echarts.getInstanceByDom(chart.current!);
@@ -67,19 +131,92 @@ export const DotPlot: React.FC<DotPlotProps> = ({ data }) => {
     }
   }, []);
 
-  useEffect(() => {
-    chartInstance && chartInstance.setOption(options);
-  }, [chartInstance, options]);
+  const buildSelectedDataSummary = useCallback((selectedSeries: any[]) => {
+    const buildDataBySeriesAndIndex = (seriesIndex: any, dataIndices: any[]) => {
+      return dataIndices.map(x => dataSeries[seriesIndex].data[x]);
+    }
+
+    const dataset = selectedSeries
+      .flatMap(x => buildDataBySeriesAndIndex(x.seriesIndex, x.dataIndex))
+      .filter(x => !!x && x.length === 2);
+
+    const dataGroupByPrice: any[] = [];
+    for (let i = 0; i < dataset.length; i++) {
+      const price = dataset[i][1];
+      const index = dataset[i][0];
+      let keyIndex = dataGroupByPrice.findIndex(x => x[0] === dataset[i][1]);
+
+      if (keyIndex !== -1) {
+        dataGroupByPrice[keyIndex][1].push(index);
+      } else {
+        dataGroupByPrice.push([price, [index]]);
+      }
+    }
+
+    for (let i = 0; i < dataGroupByPrice.length; i++) {
+      dataGroupByPrice[i][1] = dataGroupByPrice[i][1].sort();
+    }
+
+    const messages = dataGroupByPrice.map(x => {
+      return `价格 ${x[0]}: 总点数 ${x[1].length}个, 总区间 ${x[1][x[1].length - 1] - x[1][0] + 1}周期。`
+    });
+
+    return messages.join('\n');
+  }, [dataSeries]);
+
+  const brushedEventHook = useCallback(() => {
+    if (!chartInstance) return;
+    chartInstance.on('brushSelected', function (params: any) {
+      const text = buildSelectedDataSummary(params.batch[0].selected);
+      chartInstance.setOption({
+        title: {
+          show: !!text,
+          backgroundColor: '#333',
+          text: text || "",
+          bottom: 0,
+          right: '10%',
+          width: 100,
+          textStyle: {
+            fontSize: 12,
+            color: '#fff'
+          }
+        },
+      });
+    });
+  }, [buildSelectedDataSummary, chartInstance]);
 
   useEffect(() => {
     renderChart();
+  });
+
+  useEffect(() => {
+    brushedEventHook();
+  }, [brushedEventHook]);
+
+  useEffect(() => {
+    if (!chartInstance) return;
+    chartInstance.setOption(options, {
+      notMerge: true,
+    });
+  }, [chartInstance, options]);
+
+  useEffect(() => {
     if (chartInstance != null) {
       chartInstance.resize({
         height: size.height,
       });
-      console.log("Doing work", size.height);
     }
-  }, [chartInstance, renderChart, size]);
+  }, [chartInstance, size]);
+
+  useEffect(() => {
+    if (!chartInstance) return;
+
+    if (isLoading) {
+      chartInstance.showLoading();
+    } else {
+      chartInstance.hideLoading();
+    }
+  }, [chartInstance, isLoading])
 
   return (
     <div
@@ -91,10 +228,6 @@ export const DotPlot: React.FC<DotPlotProps> = ({ data }) => {
         background: "white",
       }}
     >
-      {/* <ReactEcharts
-        option={options}
-        opts={{renderer: 'svg', height: size?.height || "auto"}}
-      ></ReactEcharts> */}
     </div>
   );
 };
