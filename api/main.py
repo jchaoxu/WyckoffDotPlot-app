@@ -1,7 +1,7 @@
 import datetime
 from enum import Enum
 
-from humps.camel import case
+import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
@@ -25,10 +25,6 @@ app.add_middleware(
 )
 
 
-def to_camel(string):
-    return case(string)
-
-
 class Trend(Enum):
     Unknown = 0
     increasing = 1
@@ -40,7 +36,6 @@ class MovementModel(BaseModel):
     trend: Trend = Trend.Unknown
 
     class Config:
-        alias_generator = to_camel
         allow_population_by_field_name = True
 
 
@@ -71,3 +66,6 @@ async def search_movement(request: MovementRequest):
     )
     rst = drawer.get_dot_data()
     return {"data": rst}
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)

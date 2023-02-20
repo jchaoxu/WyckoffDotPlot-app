@@ -20,6 +20,8 @@ export const MovementPlot: React.FC = () => {
     try {
       const response = await services.movementSerivce.searchMovement(searchRequest);
       setMovements(response.data);
+    } catch (e) {
+      setMovements([]);
     } finally {
       setIsLoading(false);
     }
