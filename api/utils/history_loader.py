@@ -1,6 +1,5 @@
 import baostock as bs
 import pandas as pd
-import datetime
 
 
 def load_day_history(stock_code, start_date, current_date, precision, frequency) -> dict:

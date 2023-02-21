@@ -1,0 +1,5 @@
+baostock~=0.8.8
+pandas~=1.5.3
+uvicorn~=0.20.0
+fastapi~=0.92.0
+pydantic~=1.10.4
