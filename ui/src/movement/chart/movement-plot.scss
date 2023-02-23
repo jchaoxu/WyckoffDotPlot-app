@@ -1,0 +1,15 @@
+.movement-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  height: 90vh;
+
+  .plot-container {
+    flex: 1 1 auto;
+  }
+
+  .filter-container {
+    width: 90%;
+  }
+}
