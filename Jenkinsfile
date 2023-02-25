@@ -12,6 +12,9 @@ pipeline {
             }
         }
         stage('Deploy') {
+            when {
+                branch 'main'
+            }
             steps {
                 echo 'Building Ui...'
                 sh 'docker build -t $DOCKERHUB_CREDENTIALS_USR/dot-ui:latest ./ui'
