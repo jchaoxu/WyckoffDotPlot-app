@@ -3,14 +3,14 @@ pipeline {
 
     stages {
         stage('Build') {
-            parallel ui: {
-                steps {
-                    echo 'Building Ui...'
-                }
-            },
-            api: {
-                steps {
-                    echo 'Building Api...'
+            steps {
+                parallel {
+                    ui: {
+                        echo 'Building Ui...'
+                    }
+                    api: {
+                        echo 'Building Api...'
+                    }
                 }
             }
         }
