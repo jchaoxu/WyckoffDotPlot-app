@@ -4,14 +4,8 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                parallel {
-                    ui: {
-                        echo 'Building Ui...'
-                    }
-                    api: {
-                        echo 'Building Api...'
-                    }
-                }
+                echo 'Building Ui...'
+                echo 'Building Api...'
             }
         }
         stage('Deploy') {
