@@ -7,9 +7,9 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building Ui...'
-                sh "sudo docker build -t dot-ui/${env.BRANCH_NAME} ./ui"
+                sh "docker build -t dot-ui/${env.BRANCH_NAME} ./ui"
                 echo 'Building Api...'
-                sh "sudo docker build -t dot-api/${env.BRANCH_NAME} ./api"
+                sh "docker build -t dot-api/${env.BRANCH_NAME} ./api"
             }
         }
         stage('Deploy') {
