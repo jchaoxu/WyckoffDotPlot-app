@@ -4,7 +4,7 @@ from enum import Enum
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 import utils.history_loader as hl
 from utils.wyckoff_dot_drawer import Drawer
