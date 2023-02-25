@@ -37,16 +37,17 @@ class Movement:
         return len(self._moves)
 
 
-def get_single_day_movement(open_p: float, close_p: float, high_p: float, low_p: float, precision: int):
-    coefficient = math.pow(10, precision)
+def get_single_day_movement(open_p: float, close_p: float, high_p: float, low_p: float, precision: float):
+    coefficient = 100
+    scaled_precision = int(precision * coefficient)
     rst = []
-    for i in range(int(open_p * coefficient), int(high_p * coefficient + 1), 1):
+    for i in range(int(open_p * coefficient), int(high_p * coefficient + scaled_precision), scaled_precision):
         rst.append(float(float(i) / float(coefficient)))
 
-    for i in range(int(high_p * coefficient) - 1, int(low_p * coefficient - 1), -1):
+    for i in range(int(high_p * coefficient) - scaled_precision, int(low_p * coefficient - scaled_precision), -scaled_precision):
         rst.append(float(float(i) / float(coefficient)))
 
-    for i in range(int(low_p * coefficient) + 1, int(close_p * coefficient + 1), 1):
+    for i in range(int(low_p * coefficient) + scaled_precision, int(close_p * coefficient + scaled_precision), scaled_precision):
         rst.append(float(float(i) / float(coefficient)))
 
     return rst
@@ -75,14 +76,14 @@ def concat_single_day_movement(movements: list[list[float]], precision) -> list[
 
 def concat_day_end_start(end, start, precision) -> list[float]:
     rst = []
-    coefficient = math.pow(10, precision)
+    coefficient = 100
 
-    step = 1
+    step = int(precision * coefficient)
     if end == start:
         return rst
 
     if end > start:
-        step = -1
+        step = -step
 
     for i in range(int(end * coefficient + step), int(start * coefficient), step):
         rst.append(float(float(i) / float(coefficient)))
@@ -170,7 +171,7 @@ class Drawer:
         # return compressed_moment
 
     def _compress(self, movements: list[Movement]):
-        threshold = self._compression_threshold;
+        threshold = self._compression_threshold
 
         # Avoid single dot condition
         if self._compression_threshold == 1:
