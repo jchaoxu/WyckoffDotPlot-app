@@ -18,7 +18,9 @@ export const MovementPlot: React.FC = () => {
 
     setIsLoading(true);
     try {
-      const response = await services.movementSerivce.searchMovement(searchRequest);
+      const response = await services.movementSerivce.searchMovement(
+        searchRequest
+      );
       setMovements(response.data);
     } catch (e) {
       setMovements([]);
@@ -34,7 +36,9 @@ export const MovementPlot: React.FC = () => {
   return (
     <div className="movement-container">
       <Filters onSearch={setSearchRequest}></Filters>
-      {searchRequest && <DotPlot data={movements} isLoading={isLoading}></DotPlot>}
+      {searchRequest && (
+        <DotPlot data={movements} isLoading={isLoading}></DotPlot>
+      )}
     </div>
   );
 };

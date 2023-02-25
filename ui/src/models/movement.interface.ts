@@ -18,6 +18,6 @@ export interface SearchMovementRequest {
   endDate: string;
   stockCode: string;
   frequency: string;
-  decimalPlaces: number;
+  stepPrecision: number;
   minStep: number;
 }

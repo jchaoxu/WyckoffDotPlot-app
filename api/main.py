@@ -48,20 +48,20 @@ class MovementRequest(BaseModel):
     endDate: datetime.date
     stockCode: str
     frequency: str
-    decimalPlaces: int
+    stepPrecision: float
     minStep: int
 
 
 @app.post("/movement/search")
 async def search_movement(request: MovementRequest):
-    data = hl.load_day_history(request.stockCode, str(request.startDate), str(request.endDate), request.decimalPlaces,
+    data = hl.load_day_history(request.stockCode, str(request.startDate), str(request.endDate), request.stepPrecision,
                                request.frequency)
     drawer = Drawer(
         data.get("open"),
         data.get("close"),
         data.get("high"),
         data.get("low"),
-        request.decimalPlaces,
+        request.stepPrecision,
         request.minStep
     )
     rst = drawer.get_dot_data()

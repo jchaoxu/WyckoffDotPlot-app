@@ -34,8 +34,12 @@ export const DotPlot: React.FC<DotPlotProps> = ({ data, isLoading }) => {
       trend: v.trend,
       data: v.moves.map((m) => [i, m]),
     }));
-    const increasingDataset = dataSet.filter(x => x.trend === Trend.Increasing).flatMap(x => x.data);
-    const decreasingDataset = dataSet.filter(x => x.trend === Trend.Decreasing).flatMap(x => x.data);
+    const increasingDataset = dataSet
+      .filter((x) => x.trend === Trend.Increasing)
+      .flatMap((x) => x.data);
+    const decreasingDataset = dataSet
+      .filter((x) => x.trend === Trend.Decreasing)
+      .flatMap((x) => x.data);
 
     const concatSeries = [
       {
@@ -55,31 +59,18 @@ export const DotPlot: React.FC<DotPlotProps> = ({ data, isLoading }) => {
           color: getSeriesColor(Trend.Decreasing),
         },
         coordinateSystem: "cartesian2d",
-      }
+      },
     ];
     return concatSeries;
   }, [data]);
 
   const options: any = useMemo(() => {
-    // const series = data.flatMap((v, i) => ({
-    //   name: getSeriesName(v.trend),
-    //   type: "scatter",
-    //   data: v.moves.map((m) => [i, m]),
-    //   itemStyle: {
-    //     color: getSeriesColor(v.trend),
-    //   },
-    //   coordinateSystem: "cartesian2d",
-    // }));
-
     return {
       xAxis: {},
       yAxis: {
         type: "value",
         name: "Price",
         scale: true,
-        maxInterval: 1,
-        minInterval: 0.01,
-        splitNumber: 10,
       },
       series: dataSeries,
       dataZoom: [
@@ -94,13 +85,13 @@ export const DotPlot: React.FC<DotPlotProps> = ({ data, isLoading }) => {
         show: true,
         feature: {
           dataZoom: {
-            yAxisIndex: 'none'
+            yAxisIndex: "none",
           },
           brush: {
             type: ["rect", "clear"],
           },
           restore: {},
-          saveAsImage: {}
+          saveAsImage: {},
         },
         left: "middle",
       },
@@ -131,55 +122,65 @@ export const DotPlot: React.FC<DotPlotProps> = ({ data, isLoading }) => {
     }
   }, []);
 
-  const buildSelectedDataSummary = useCallback((selectedSeries: any[]) => {
-    const buildDataBySeriesAndIndex = (seriesIndex: any, dataIndices: any[]) => {
-      return dataIndices.map(x => dataSeries[seriesIndex].data[x]);
-    }
+  const buildSelectedDataSummary = useCallback(
+    (selectedSeries: any[]) => {
+      const buildDataBySeriesAndIndex = (
+        seriesIndex: any,
+        dataIndices: any[]
+      ) => {
+        return dataIndices.map((x) => dataSeries[seriesIndex].data[x]);
+      };
 
-    const dataset = selectedSeries
-      .flatMap(x => buildDataBySeriesAndIndex(x.seriesIndex, x.dataIndex))
-      .filter(x => !!x && x.length === 2);
+      const dataset = selectedSeries
+        .flatMap((x) => buildDataBySeriesAndIndex(x.seriesIndex, x.dataIndex))
+        .filter((x) => !!x && x.length === 2);
 
-    const dataGroupByPrice: any[] = [];
-    for (let i = 0; i < dataset.length; i++) {
-      const price = dataset[i][1];
-      const index = dataset[i][0];
-      let keyIndex = dataGroupByPrice.findIndex(x => x[0] === dataset[i][1]);
+      const dataGroupByPrice: any[] = [];
+      for (let i = 0; i < dataset.length; i++) {
+        const price = dataset[i][1];
+        const index = dataset[i][0];
+        let keyIndex = dataGroupByPrice.findIndex(
+          (x) => x[0] === dataset[i][1]
+        );
 
-      if (keyIndex !== -1) {
-        dataGroupByPrice[keyIndex][1].push(index);
-      } else {
-        dataGroupByPrice.push([price, [index]]);
+        if (keyIndex !== -1) {
+          dataGroupByPrice[keyIndex][1].push(index);
+        } else {
+          dataGroupByPrice.push([price, [index]]);
+        }
       }
-    }
 
-    for (let i = 0; i < dataGroupByPrice.length; i++) {
-      dataGroupByPrice[i][1] = dataGroupByPrice[i][1].sort();
-    }
+      for (let i = 0; i < dataGroupByPrice.length; i++) {
+        dataGroupByPrice[i][1] = dataGroupByPrice[i][1].sort();
+      }
 
-    const messages = dataGroupByPrice.map(x => {
-      return `价格 ${x[0]}: 总点数 ${x[1].length}个, 总区间 ${x[1][x[1].length - 1] - x[1][0] + 1}周期。`
-    });
+      const messages = dataGroupByPrice.map((x) => {
+        return `价格 ${x[0]}: 总点数 ${x[1].length}个, 总区间 ${
+          x[1][x[1].length - 1] - x[1][0] + 1
+        }周期。`;
+      });
 
-    return messages.join('\n');
-  }, [dataSeries]);
+      return messages.join("\n");
+    },
+    [dataSeries]
+  );
 
   const brushedEventHook = useCallback(() => {
     if (!chartInstance) return;
-    chartInstance.on('brushSelected', function (params: any) {
+    chartInstance.on("brushSelected", function (params: any) {
       const text = buildSelectedDataSummary(params.batch[0].selected);
       chartInstance.setOption({
         title: {
           show: !!text,
-          backgroundColor: '#333',
+          backgroundColor: "#333",
           text: text || "",
           bottom: 0,
-          right: '10%',
+          right: "10%",
           width: 100,
           textStyle: {
             fontSize: 12,
-            color: '#fff'
-          }
+            color: "#fff",
+          },
         },
       });
     });
@@ -216,7 +217,7 @@ export const DotPlot: React.FC<DotPlotProps> = ({ data, isLoading }) => {
     } else {
       chartInstance.hideLoading();
     }
-  }, [chartInstance, isLoading])
+  }, [chartInstance, isLoading]);
 
   return (
     <div
@@ -227,7 +228,6 @@ export const DotPlot: React.FC<DotPlotProps> = ({ data, isLoading }) => {
         height: "100%",
         background: "white",
       }}
-    >
-    </div>
+    ></div>
   );
 };

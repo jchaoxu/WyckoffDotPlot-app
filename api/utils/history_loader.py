@@ -21,7 +21,8 @@ def load_day_history(stock_code, start_date, current_date, precision, frequency)
         for i in range(len(rs_list)):
             tmp = rs_list[i]
             # rs_list[i] = float(format(float(rs_list[i]), f'.{precision}f'))
-            rs_list[i] = float(str(tmp).split('.')[0] + '.' + str(tmp).split('.')[1][:precision])
+            coefficient = float(100)
+            rs_list[i] = float((float(tmp) * coefficient) // (precision * coefficient) * precision)
         data_list.append(rs_list)
 
     result = pd.DataFrame(data_list, columns=rs.fields)
