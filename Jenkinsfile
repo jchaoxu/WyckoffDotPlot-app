@@ -1,15 +1,23 @@
 pipeline {
     agent any
 
-    stage('Build') {
-        parallel ui: {
-            echo 'Building Ui...'
-        },
-        api: {
-            echo 'Building Api...'
+    stages {
+        stage('Build') {
+            parallel ui: {
+                steps {
+                    echo 'Building Ui...'
+                }
+            },
+            api: {
+                steps {
+                    echo 'Building Api...'
+                }
+            }
         }
-    }
-    stage('Deploy') {
-        echo "Deploying branch ${env.BRANCH_NAME}"
+        stage('Deploy') {
+            steps {
+                echo "Deploying branch ${env.BRANCH_NAME}"
+            }
+        }
     }
 }
