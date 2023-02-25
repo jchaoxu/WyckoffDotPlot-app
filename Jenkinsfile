@@ -30,7 +30,9 @@ pipeline {
         }
         stage ('Cleaning') {
             steps {
-                sh 'docker system prune -f'
+                catchError {
+                    sh 'docker image prune -a --force --filter "until=24h"'
+                }
             }
         }
     }
