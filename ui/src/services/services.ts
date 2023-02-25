@@ -2,7 +2,7 @@ import { Services } from "../models";
 import { movementService } from "./movement.servce";
 
 export const CreateServices = (): Services => {
-  const movementServiceUrl = "http://localhost:8000";
+  const movementServiceUrl = "https://dot-app-api.azurewebsites.net";
 
   return {
     movementSerivce: movementService(movementServiceUrl),
