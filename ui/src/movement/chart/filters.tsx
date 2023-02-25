@@ -1,8 +1,8 @@
-import { isDisabled } from "@testing-library/user-event/dist/utils";
 import React, { useCallback, useMemo, useState } from "react";
 import { Button, Col, InputGroup, Row } from "react-bootstrap";
 import { DatePicker, InputControl, SelectControl } from "../../controls";
 import { SearchMovementRequest } from "../../models";
+import format from "date-fns/format";
 
 interface FiltersProps {
   onSearch: (request: SearchMovementRequest) => void;
@@ -12,8 +12,8 @@ export const Filters: React.FC<FiltersProps> = ({ onSearch }) => {
 
   const [stockPartyCode, setStockPartyCode] = useState("sh.");
   const [stockCode, setStockCode] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState(format(new Date(new Date().setFullYear(new Date().getFullYear() - 1)), "yyyy-MM-dd"));
+  const [endDate, setEndDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [decimalPlaces, setDecimalPlaces] = useState(0);
   const [minStep, setMinStep] = useState(1);
   const [frequency, setFrequency] = useState("d");
